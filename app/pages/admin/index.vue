@@ -24,6 +24,8 @@ interface LeadDetail extends LeadSummary {
     card_name: string;
     card_variant?: string | null;
     card_condition: "NM" | "LP" | "MP" | "HP" | "DMG";
+    tcgplayer_url?: string | null;
+    cardmarket_url?: string | null;
     quantity: number;
     market_price_cents: number;
     offer_price_cents: number;
@@ -136,7 +138,14 @@ function conditionLabel(condition: string) {
       <div class="mt-5 overflow-hidden rounded-lg border border-neutral-800">
         <div class="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-3 bg-neutral-900 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-neutral-400"><span>Card</span><span>Qty</span><span>Offer</span></div>
         <div v-for="item in selectedLead.lead.offer_lead_items" :key="item.id" class="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-3 border-t border-neutral-800 px-4 py-3 text-sm">
-          <div><p class="font-medium text-neutral-100">{{ item.card_name }}<template v-if="item.card_variant"> · {{ item.card_variant }}</template></p><p class="text-neutral-400">{{ conditionLabel(item.card_condition) }}</p></div>
+          <div>
+            <p class="font-medium text-neutral-100">{{ item.card_name }}<template v-if="item.card_variant"> · {{ item.card_variant }}</template></p>
+            <p class="text-neutral-400">{{ conditionLabel(item.card_condition) }}</p>
+            <span class="mt-1 flex flex-wrap gap-3 text-xs">
+              <a v-if="item.tcgplayer_url" class="text-amber-400 underline hover:text-amber-300" :href="item.tcgplayer_url" target="_blank" rel="noreferrer">TCGplayer</a>
+              <a v-if="item.cardmarket_url" class="text-amber-400 underline hover:text-amber-300" :href="item.cardmarket_url" target="_blank" rel="noreferrer">Cardmarket</a>
+            </span>
+          </div>
           <span class="text-neutral-300">{{ item.quantity }}</span>
           <span class="font-medium text-neutral-100">{{ money(item.offer_price_cents * item.quantity) }}</span>
         </div>

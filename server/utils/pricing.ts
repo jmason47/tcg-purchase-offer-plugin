@@ -45,6 +45,8 @@ export function createEstimate(
       cardId: card.id,
       name: card.name,
       variant: card.variant,
+      tcgplayerUrl: card.tcgplayerUrl,
+      cardmarketUrl: card.cardmarketUrl,
       condition,
       quantity,
       marketPriceCents: card.marketPriceCents,

@@ -4,6 +4,8 @@ export interface Card {
   setName: string;
   number?: string;
   variant?: string;
+  tcgplayerUrl?: string;
+  cardmarketUrl?: string;
   imageUrl?: string;
   marketPriceCents: number;
 }
@@ -30,6 +32,8 @@ export interface EstimateLine {
   cardId: string;
   name: string;
   variant?: string;
+  tcgplayerUrl?: string;
+  cardmarketUrl?: string;
   condition: CardCondition;
   quantity: number;
   marketPriceCents: number;

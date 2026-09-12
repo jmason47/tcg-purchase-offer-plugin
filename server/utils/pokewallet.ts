@@ -6,8 +6,8 @@ interface PokewalletCardResponse {
   card_info?: { name?: string; set_name?: string; card_number?: string };
   images?: { small?: string; large?: string };
   imageUrl?: string;
-  tcgplayer?: { prices?: Array<{ sub_type_name?: string; market_price?: number | string }> } | null;
-  cardmarket?: { prices?: Array<{ avg?: number | string | null; avg7?: number | string | null; avg30?: number | string | null; trend?: number | string | null; variant_type?: string }> } | null;
+  tcgplayer?: { url?: string; prices?: Array<{ sub_type_name?: string; market_price?: number | string }> } | null;
+  cardmarket?: { product_url?: string; prices?: Array<{ avg?: number | string | null; avg7?: number | string | null; avg30?: number | string | null; trend?: number | string | null; variant_type?: string }> } | null;
 }
 
 export async function searchPokewallet(query: string, signal?: AbortSignal): Promise<Card[]> {
@@ -141,6 +141,8 @@ export function normalizeCard(
     setName: record.card_info?.set_name ?? "Unknown set",
     number: record.card_info?.card_number,
     variant: tcgPlayerEntry?.sub_type_name ?? formatCardMarketVariant(cardMarketEntry?.variant_type),
+    tcgplayerUrl: record.tcgplayer?.url,
+    cardmarketUrl: record.cardmarket?.product_url,
     imageUrl: record.imageUrl ?? record.images?.small ?? record.images?.large,
     marketPriceCents: Math.round(marketPrice * 100),
   };
