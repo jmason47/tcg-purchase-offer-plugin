@@ -15,13 +15,18 @@ describe("pricing", () => {
   });
 
   it("creates an auditable estimate for quantities", () => {
-    const estimate = createEstimate([card], [{ cardId: card.id, quantity: 2 }]);
+    const estimate = createEstimate([card], [{ cardId: card.id, quantity: 2, condition: "NM" }]);
     expect(estimate.totalMarketPriceCents).toBe(20_000);
     expect(estimate.totalOfferCents).toBe(13_000);
     expect(estimate.lines[0]?.offerPriceCents).toBe(6_500);
   });
 
   it("rejects unknown cards", () => {
-    expect(() => createEstimate([], [{ cardId: "missing", quantity: 1 }])).toThrow("Card not found");
+    expect(() => createEstimate([], [{ cardId: "missing", quantity: 1, condition: "NM" }])).toThrow("Card not found");
+  });
+
+  it("applies condition multipliers before the offer rate", () => {
+    const estimate = createEstimate([card], [{ cardId: card.id, quantity: 1, condition: "LP" }]);
+    expect(estimate.lines[0]?.offerPriceCents).toBe(5_200);
   });
 });

@@ -13,5 +13,7 @@ export const leadSchema = z.object({
   cards: z.array(z.object({
     cardId: z.string().trim().min(1).max(200),
     quantity: z.number().int().min(1).max(99),
+    variant: z.string().trim().min(1).max(100).optional(),
+    condition: z.enum(["NM", "LP", "MP", "HP", "DMG"]),
   })).min(1).max(100),
 });

@@ -13,6 +13,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     pokewalletApiKey: "",
     pokewalletApiUrl: "https://api.pokewallet.io",
+    fxApiUrl: "https://api.frankfurter.dev",
+    usdToGbpRate: Number(process.env.NUXT_USD_TO_GBP_RATE ?? 0.79),
+    eurToGbpRate: Number(process.env.NUXT_EUR_TO_GBP_RATE ?? 0.86),
     offerRate: Number(process.env.NUXT_OFFER_RATE ?? 0.65),
     supabaseServiceKey: "",
     public: {
@@ -35,7 +38,11 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: "Pokémon Purchase Offers",
+      title: "Sell Your Pokémon Cards | TopDog TCG",
+      link: [
+        { rel: "icon", type: "image/png", href: "/topdog-logo.png" },
+        { rel: "apple-touch-icon", type: "image/png", href: "/topdog-logo.png" },
+      ],
       meta: [
         { name: "description", content: "Get an estimated purchase offer for your Pokémon cards." },
       ],

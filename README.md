@@ -65,5 +65,8 @@ its line items with server-only Supabase credentials.
 
 ## Environment
 
-See `.env.example`. `NUXT_OFFER_RATE` defaults to `0.65`; Supabase service
-credentials must never be exposed through `NUXT_PUBLIC_*` variables.
+See `.env.example`. `NUXT_OFFER_RATE` defaults to `0.65`.
+Exchange rates are fetched daily from Frankfurter using ECB reference rates.
+`NUXT_USD_TO_GBP_RATE` and `NUXT_EUR_TO_GBP_RATE` remain as fallback values if
+the rate service is unavailable. Supabase service credentials must never be
+exposed through `NUXT_PUBLIC_*` variables.

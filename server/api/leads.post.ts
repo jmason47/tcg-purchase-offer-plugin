@@ -1,6 +1,6 @@
 import type { CreateLeadRequest } from "~/types/offer";
 import { createEstimate } from "../utils/pricing";
-import { searchPokewallet } from "../utils/pokewallet";
+import { getPokewalletCard } from "../utils/pokewallet";
 import { createLeadRepository } from "../utils/repository";
 import { leadSchema } from "../utils/validation";
 
@@ -13,8 +13,10 @@ export default defineEventHandler(async event => {
     const input = parsed.data as CreateLeadRequest;
     const cards = [];
     for (const item of input.cards) {
-      const matches = await searchPokewallet(item.cardId);
-      const card = matches.find(candidate => candidate.id === item.cardId);
+      const matches = await getPokewalletCard(item.cardId);
+      const card = matches.find(candidate =>
+        candidate.id === item.cardId && candidate.variant === item.variant,
+      );
       if (!card) throw new Error(`Card not found: ${item.cardId}`);
       cards.push(card);
     }
