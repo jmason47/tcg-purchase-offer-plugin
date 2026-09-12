@@ -16,5 +16,12 @@ Thumbs.db
 # Build / logs
 dist/
 build/
+.nuxt/
+.output/
+supabase/.temp/
+playwright-report/
+test-results/
 *.log
 npm-debug.log*
+*.tsbuildinfo
+.vite/
