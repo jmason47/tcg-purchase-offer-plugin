@@ -3,6 +3,7 @@ import { createEstimate } from "../utils/pricing";
 import { getPokewalletCard } from "../utils/pokewallet";
 import { createLeadRepository } from "../utils/repository";
 import { leadSchema } from "../utils/validation";
+import { sendLeadNotification } from "../utils/email";
 
 export default defineEventHandler(async event => {
   const parsed = leadSchema.safeParse(await readBody(event));
@@ -23,6 +24,11 @@ export default defineEventHandler(async event => {
     const config = useRuntimeConfig();
     const estimate = createEstimate(cards, input.cards, Number(config.offerRate));
     const leadId = await createLeadRepository().createLead(input, estimate);
+    try {
+      await sendLeadNotification(input, estimate, leadId);
+    } catch (notificationError) {
+      console.error("Unable to send lead notification", notificationError);
+    }
     return { leadId, estimate };
   } catch (error) {
     console.error(error);

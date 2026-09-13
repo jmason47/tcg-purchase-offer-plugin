@@ -70,3 +70,20 @@ Exchange rates are fetched daily from Frankfurter using ECB reference rates.
 `NUXT_USD_TO_GBP_RATE` and `NUXT_EUR_TO_GBP_RATE` remain as fallback values if
 the rate service is unavailable. Supabase service credentials must never be
 exposed through `NUXT_PUBLIC_*` variables.
+
+## Email notifications
+
+New purchase requests are emailed through Resend. Set these Vercel environment
+variables:
+
+```bash
+NUXT_RESEND_API_KEY=<resend-api-key>
+NUXT_RESEND_FROM_EMAIL=notifications@topdogtcg.com
+NUXT_PUBLIC_APP_URL=https://<production-domain>
+```
+
+The `topdogtcg.com` domain must be verified in Resend before using
+`notifications@topdogtcg.com` as the sender. Apply the Supabase migrations,
+including `00006_notification_settings.sql`, to create the default recipient
+`contact@topdogtcg.com`. Authenticated admins can add or remove recipients
+from the Email notifications section of the admin page.

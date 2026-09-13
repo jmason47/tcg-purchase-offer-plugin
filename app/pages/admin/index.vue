@@ -37,9 +37,13 @@ const filter = ref<"pending" | "accepted" | "rejected" | "">("pending");
 const selectedLead = ref<{ lead: LeadDetail } | null>(null);
 const note = ref("");
 const busyId = ref("");
+const notificationEmails = ref("");
+const notificationBusy = ref(false);
+const notificationMessage = ref("");
 const { data, pending, error, refresh } = await useFetch<{ leads: LeadSummary[]; total: number }>("/api/admin/leads", {
   query: computed(() => filter.value ? { status: filter.value } : {}),
 });
+const route = useRoute();
 
 async function review(lead: LeadSummary, status: "accepted" | "rejected") {
   busyId.value = lead.id;
@@ -59,6 +63,41 @@ async function review(lead: LeadSummary, status: "accepted" | "rejected") {
 async function showLead(id: string) {
   selectedLead.value = await $fetch<{ lead: LeadDetail }>(`/api/admin/leads/${id}`);
 }
+
+async function saveNotificationSettings() {
+  const emails = notificationEmails.value.split(/[\s,;]+/).map(email => email.trim()).filter(Boolean);
+  notificationBusy.value = true;
+  notificationMessage.value = "";
+  try {
+    const response = await $fetch<{ recipientEmails: string[] }>("/api/admin/notification-settings", {
+      method: "PATCH",
+      body: { recipientEmails: emails },
+    });
+    notificationEmails.value = response.recipientEmails.join(", ");
+    notificationMessage.value = "Notification recipients saved.";
+  } catch {
+    notificationMessage.value = "Unable to save notification recipients.";
+  } finally {
+    notificationBusy.value = false;
+  }
+}
+
+onMounted(async () => {
+  try {
+    const settings = await $fetch<{ recipientEmails: string[] }>("/api/admin/notification-settings");
+    notificationEmails.value = settings.recipientEmails.join(", ");
+  } catch {
+    notificationMessage.value = "Unable to load notification recipients.";
+  }
+  const leadId = typeof route.query.lead === "string" ? route.query.lead : "";
+  if (leadId) {
+    try {
+      await showLead(leadId);
+    } catch {
+      notificationMessage.value = "The linked purchase request could not be found.";
+    }
+  }
+});
 
 function setFilter(value: string) {
   if (value === "" || value === "pending" || value === "accepted" || value === "rejected") {
@@ -100,6 +139,15 @@ function conditionLabel(condition: string) {
       <div><p class="text-sm font-semibold uppercase tracking-wide text-amber-400">Internal</p><h1 class="text-3xl font-bold text-white">Sales requests</h1></div>
       <button type="button" class="rounded-lg border border-neutral-700 px-3 py-2 text-sm text-neutral-200 hover:bg-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500" @click="logout">Sign out</button>
     </header>
+    <section class="mt-8 rounded-xl border border-neutral-800 bg-neutral-950 p-5">
+      <h2 class="text-lg font-semibold text-neutral-100">Email notifications</h2>
+      <p class="mt-1 text-sm text-neutral-400">New purchase requests will be sent to these addresses. Separate multiple addresses with commas.</p>
+      <form class="mt-4 flex flex-col gap-3 sm:flex-row" @submit.prevent="saveNotificationSettings">
+        <input v-model="notificationEmails" type="text" class="min-w-0 flex-1 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-neutral-100 placeholder:text-neutral-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500" placeholder="contact@topdogtcg.com" aria-label="Notification recipient emails">
+        <button type="submit" class="rounded-lg bg-amber-500 px-4 py-2 font-semibold text-black disabled:opacity-50" :disabled="notificationBusy">{{ notificationBusy ? "Saving…" : "Save recipients" }}</button>
+      </form>
+      <p v-if="notificationMessage" class="mt-3 text-sm text-neutral-300" role="status">{{ notificationMessage }}</p>
+    </section>
     <div class="mt-8 flex flex-wrap gap-2">
       <button v-for="value in ['', 'pending', 'accepted', 'rejected']" :key="value" type="button" class="rounded-lg px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500" :class="filter === value ? 'bg-amber-500 font-semibold text-black' : 'border border-neutral-700 text-neutral-300 hover:bg-neutral-900'" @click="setFilter(value)">{{ value || 'All' }}</button>
     </div>

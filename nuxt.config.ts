@@ -11,6 +11,8 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-05-01",
   devtools: { enabled: process.env.NODE_ENV !== "production" },
   runtimeConfig: {
+    resendApiKey: "",
+    resendFromEmail: "notifications@topdogtcg.com",
     pokewalletApiKey: "",
     pokewalletApiUrl: "https://api.pokewallet.io",
     fxApiUrl: "https://api.frankfurter.dev",
