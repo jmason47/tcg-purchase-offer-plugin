@@ -108,3 +108,41 @@ export async function sendLeadNotification(
   });
   if (error) throw error;
 }
+
+export async function sendRejectionNotification(contactEmail: string) {
+  const config = useRuntimeConfig();
+  if (!config.resendApiKey) {
+    console.warn("NUXT_RESEND_API_KEY is not configured; skipping rejection notification");
+    return;
+  }
+
+  const text = [
+    "Hello,",
+    "",
+    "Thank you for your submission through the TopDog TCG selling platform.",
+    "",
+    "After careful review, we are unfortunately unable to accept your cards at the moment. Please feel free to use our service for other cards, and we'll let you know the outcome!",
+    "",
+    "Kind regards,",
+    "",
+    "TopDog TCG",
+    "59 Magdalen Street, Norwich, NR3 1AA",
+  ].join("\n");
+  const html = `
+    <p>Hello,</p>
+    <p>Thank you for your submission through the TopDog TCG selling platform.</p>
+    <p>After careful review, we are unfortunately unable to accept your cards at the moment. Please feel free to use our service for other cards, and we'll let you know the outcome!</p>
+    <p>Kind regards,</p>
+    <p>TopDog TCG<br>59 Magdalen Street, Norwich, NR3 1AA</p>
+  `;
+
+  const resend = new Resend(config.resendApiKey);
+  const { error } = await resend.emails.send({
+    from: String(config.resendFromEmail),
+    to: contactEmail,
+    subject: "Update on your TopDog TCG submission",
+    text,
+    html,
+  });
+  if (error) throw error;
+}

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { serverSupabaseClient } from "#supabase/server";
 import { requireAdmin } from "../../../utils/admin";
+import { sendRejectionNotification } from "../../../utils/email";
 import { reviewDecision, reviewUpdateSchema } from "../../../utils/review";
 
 const idSchema = z.string().uuid();
@@ -16,7 +17,7 @@ export default defineEventHandler(async event => {
   const client = await serverSupabaseClient(event);
   const { data: current, error: readError } = await client
     .from("offer_leads")
-    .select("id, status")
+    .select("id, status, contact_email")
     .eq("id", id.data)
     .maybeSingle();
   if (readError) {
@@ -47,6 +48,13 @@ export default defineEventHandler(async event => {
   if (updateError) {
     console.error(updateError);
     throw createError({ statusCode: 502, statusMessage: "Unable to update sale" });
+  }
+  if (body.data.status === "rejected") {
+    try {
+      await sendRejectionNotification(current.contact_email);
+    } catch (notificationError) {
+      console.error("Unable to send rejection notification", notificationError);
+    }
   }
   return { status: body.data.status, unchanged: false };
 });

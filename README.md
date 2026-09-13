@@ -49,8 +49,8 @@ values ('<auth-user-uuid>');
 ```
 
 Only allowlisted users can read sales or change a sale from `pending` to
-`accepted` or `rejected`. Review metadata is stored for future notification
-integrations; this version does not send email.
+`accepted` or `rejected`. Review metadata is stored, and rejected submissions
+send the submitter the standard decline email through Resend.
 
 ## Architecture
 
