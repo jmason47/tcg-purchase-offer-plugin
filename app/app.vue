@@ -1,5 +1,6 @@
 <template>
   <div class="min-h-screen bg-black text-neutral-100">
+    <NuxtLoadingIndicator color="#f59e0b" :height="3" />
     <header class="border-b border-neutral-800 bg-black text-white">
       <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
         <NuxtLink to="/" class="rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400">

@@ -40,7 +40,8 @@ const busyId = ref("");
 const notificationEmails = ref("");
 const notificationBusy = ref(false);
 const notificationMessage = ref("");
-const { data, pending, error, refresh } = await useFetch<{ leads: LeadSummary[]; total: number }>("/api/admin/leads", {
+const { data, pending, error, refresh } = useFetch<{ leads: LeadSummary[]; total: number }>("/api/admin/leads", {
+  lazy: true,
   query: computed(() => filter.value ? { status: filter.value } : {}),
 });
 const route = useRoute();
@@ -152,7 +153,17 @@ function conditionLabel(condition: string) {
       <button v-for="value in ['', 'pending', 'accepted', 'rejected']" :key="value" type="button" class="rounded-lg px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500" :class="filter === value ? 'bg-amber-500 font-semibold text-black' : 'border border-neutral-700 text-neutral-300 hover:bg-neutral-900'" @click="setFilter(value)">{{ value || 'All' }}</button>
     </div>
     <p v-if="error" class="mt-6 text-red-400" role="alert">Unable to load sales requests.</p>
-    <p v-else-if="pending" class="mt-6 text-neutral-400">Loading sales…</p>
+    <div v-else-if="pending" class="mt-6 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950" aria-label="Loading sales requests" role="status">
+      <div class="animate-pulse">
+        <div class="grid grid-cols-5 gap-4 border-b border-neutral-800 bg-neutral-900 p-3">
+          <span v-for="column in 5" :key="column" class="h-4 rounded bg-neutral-800" />
+        </div>
+        <div v-for="row in 5" :key="row" class="grid grid-cols-5 gap-4 border-b border-neutral-800 p-4 last:border-0">
+          <span v-for="column in 5" :key="column" class="h-4 rounded bg-neutral-900" :class="column === 2 ? 'col-span-2' : ''" />
+        </div>
+      </div>
+      <span class="sr-only">Loading sales requests…</span>
+    </div>
     <p v-else-if="!data?.leads.length" class="mt-6 rounded-xl border border-dashed border-neutral-800 p-8 text-center text-neutral-400">No sales requests found.</p>
     <div v-else class="mt-6 overflow-x-auto rounded-xl border border-neutral-800 bg-neutral-950">
       <table class="w-full text-left text-sm">
