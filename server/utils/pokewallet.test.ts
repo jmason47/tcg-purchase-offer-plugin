@@ -36,13 +36,19 @@ describe("PokéWallet card normalization", () => {
     const card = normalizeCard({
       id: "card-3",
       card_info: { name: "Mew ex" },
-      cardmarket: { prices: [{ variant_type: "normal", avg7: 830, avg30: 590, trend: 610 }] },
-    }, undefined, undefined, {
-      eurToGbp: 1,
-      usdToGbp: 1,
+      tcgplayer: { prices: [{ sub_type_name: "Normal", market_price: 700 }] },
+      cardmarket: { prices: [{ variant_type: "normal", avg7: 830, avg30: 800, trend: 810 }] },
+    }, { sub_type_name: "Normal", market_price: 700 }, {
+      variant_type: "normal",
+      avg7: 830,
+      avg30: 800,
+      trend: 810,
+    }, {
+      eurToGbp: 0.86,
+      usdToGbp: 0.79,
     });
 
-    expect(card?.marketPriceCents).toBe(59000);
+    expect(card?.marketPriceCents).toBe(55300);
   });
 
   it("omits zero-priced results", () => {

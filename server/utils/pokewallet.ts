@@ -120,18 +120,20 @@ export function normalizeCard(
     record.cardmarket?.prices?.find(price => price.trend != null),
   rates?: ExchangeRates,
 ): Card | null {
-  const tcgPlayerPrice = tcgPlayerEntry?.market_price;
+  const tcgPlayerPrice = Number(tcgPlayerEntry?.market_price);
   const cardMarketPrice = conservativeCardMarketPrice(cardMarketEntry);
-  const rawPrice = cardMarketPrice ?? tcgPlayerPrice;
   const config = useRuntimeConfig();
   const exchangeRates = rates ?? {
     eurToGbp: Number(config.eurToGbpRate),
     usdToGbp: Number(config.usdToGbpRate),
   };
-  const exchangeRate = cardMarketPrice != null
-    ? exchangeRates.eurToGbp
-    : exchangeRates.usdToGbp;
-  const marketPrice = Number(rawPrice) * exchangeRate;
+  const pricesInGbp = [
+    cardMarketPrice == null ? undefined : cardMarketPrice * exchangeRates.eurToGbp,
+    Number.isFinite(tcgPlayerPrice) && tcgPlayerPrice > 0
+      ? tcgPlayerPrice * exchangeRates.usdToGbp
+      : undefined,
+  ].filter((price): price is number => price != null && Number.isFinite(price) && price > 0);
+  const marketPrice = pricesInGbp.length ? Math.min(...pricesInGbp) : NaN;
   const id = record.id;
   const name = record.card_info?.name;
   if (!id || !name || !Number.isFinite(marketPrice) || marketPrice <= 0) return null;
