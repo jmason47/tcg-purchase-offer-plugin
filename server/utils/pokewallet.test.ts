@@ -20,7 +20,7 @@ describe("PokéWallet card normalization", () => {
     expect(card?.marketPriceCents).toBe(1_250);
   });
 
-  it("formats Cardmarket variant types for display", () => {
+  it("uses the most conservative valid Cardmarket reference", () => {
     const card = normalizeCard({
       id: "card-2",
       card_info: { name: "Pikachu" },
@@ -29,12 +29,25 @@ describe("PokéWallet card normalization", () => {
     });
 
     expect(card?.variant).toBe("Holofoil");
-    expect(card?.marketPriceCents).toBe(820);
+    expect(card?.marketPriceCents).toBe(750);
+  });
+
+  it("does not let an inflated seven-day average set the market price", () => {
+    const card = normalizeCard({
+      id: "card-3",
+      card_info: { name: "Mew ex" },
+      cardmarket: { prices: [{ variant_type: "normal", avg7: 830, avg30: 590, trend: 610 }] },
+    }, undefined, undefined, {
+      eurToGbp: 1,
+      usdToGbp: 1,
+    });
+
+    expect(card?.marketPriceCents).toBe(59000);
   });
 
   it("omits zero-priced results", () => {
     const card = normalizeCard({
-      id: "card-3",
+      id: "card-4",
       card_info: { name: "Pikachu" },
       cardmarket: { prices: [{ variant_type: "normal", avg30: 0 }] },
     });

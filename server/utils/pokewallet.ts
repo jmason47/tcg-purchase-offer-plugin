@@ -121,7 +121,7 @@ export function normalizeCard(
   rates?: ExchangeRates,
 ): Card | null {
   const tcgPlayerPrice = tcgPlayerEntry?.market_price;
-  const cardMarketPrice = cardMarketEntry?.avg7 ?? cardMarketEntry?.avg30 ?? cardMarketEntry?.avg ?? cardMarketEntry?.trend;
+  const cardMarketPrice = conservativeCardMarketPrice(cardMarketEntry);
   const rawPrice = cardMarketPrice ?? tcgPlayerPrice;
   const config = useRuntimeConfig();
   const exchangeRates = rates ?? {
@@ -146,6 +146,21 @@ export function normalizeCard(
     imageUrl: record.imageUrl ?? record.images?.small ?? record.images?.large,
     marketPriceCents: Math.round(marketPrice * 100),
   };
+}
+
+function conservativeCardMarketPrice(price?: {
+  avg7?: number | string | null;
+  avg30?: number | string | null;
+  avg?: number | string | null;
+  trend?: number | string | null;
+}): number | undefined {
+  if (!price) return undefined;
+  // Short-term averages can be distorted by a small number of high-value sales.
+  // Use the lowest valid signal so the purchase estimate does not overstate value.
+  const values = [price.avg7, price.avg30, price.avg, price.trend]
+    .map(value => Number(value))
+    .filter(value => Number.isFinite(value) && value > 0);
+  return values.length ? Math.min(...values) : undefined;
 }
 
 function formatCardMarketVariant(variant?: string): string | undefined {
